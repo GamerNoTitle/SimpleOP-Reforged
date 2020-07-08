@@ -1,6 +1,6 @@
 # SimpleOP-Reforged
 
-一个由SimpleOP魔改魔改再魔改的MCDR插件，需要OnlinePlayerAPI支持，现在有功能
+一个由SimpleOP魔改魔改再魔改的MCDR插件现在有功能
 
 - !!sr 获取帮助信息
 

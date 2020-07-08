@@ -2,8 +2,6 @@
 import time
 import re
 import sys
-sys.path.append('plugins/')
-from OnlinePlayerAPI import check_online
 
 msg='''
 §6======== SimpleOP Reforged ========
@@ -31,15 +29,16 @@ def on_info(server, info):
     waiting_time=10	# 在这里设置重启或关服等待的时间
     time_left=waiting_time
     message=info.content.split()
+    if info.content == '!!sr':
+        server.tell(info.player, msg)
+
     if message[0]=='!!sr':            
         if info.is_player and message[1] == 'where' and len(message)==3:
-            player_for_search=message[2]
-            online=check_online(player_for_search)
-            if(online):
+            try:
                 position = process_coordinate(re.search(r'\[.*\]', server.rcon_query('data get entity {} Pos'.format(player_for_search))).group())
                 where='Player §b{} §rat §6{} §6{} §6{}'.format(player_for_search,int(position[0]),int(position[1]),int(position[2]))
                 server.tell(info.player, where)
-            else:
+            except:
                 server.tell(info.player,'Player §b{} §ris not online now!'.format(player_for_search))
             
         if info.is_player and message[1] == 'sp':
@@ -79,6 +78,3 @@ def on_info(server, info):
                 
     if info.content == '!!save':
         server.execute('save-all')
-
-    if info.content == '!!sr':
-        server.tell(info.player, msg)

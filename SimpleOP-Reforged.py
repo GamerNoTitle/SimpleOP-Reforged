@@ -14,12 +14,13 @@ msg='''
 §6!!op 可以获取OP权限（无权限要求§4危险§6）
 §6!!restart 可以重启服务器（有10s倒计时）
 §6!!stop 可以关闭服务器（有10s倒计时）
-§6!!sp 可以将自己的出生点设置为当前位置（黑曜石机调试必备）
-§6!!where <player> 可以获取某位玩家的坐标
+§6!!save 可以手动保存服务器世界
+§6!!sr sp 可以将自己的出生点设置为当前位置（黑曜石机调试必备）
+§6!!sr where <player> 可以获取某位玩家的坐标
 §6Being Developed...
 §6===================================
 '''
-
+prefix='!!sr'
 
 def process_coordinate(text):
 	data = text[1:-1].replace('d', '').split(', ')
@@ -29,25 +30,28 @@ def process_coordinate(text):
 def on_info(server, info):
     waiting_time=10	# 在这里设置重启或关服等待的时间
     time_left=waiting_time
-    if info.is_player and info.content == '!!op':
+    message=info.content.split()
+    if message[0]=='!!sr':            
+        if info.is_player and message[1] == 'where' and len(message)==3:
+            player_for_search=message[2]
+            online=check_online(player_for_search)
+            if(online):
+                position = process_coordinate(re.search(r'\[.*\]', server.rcon_query('data get entity {} Pos'.format(player_for_search))).group())
+                where='Player §b{} §rat §6{} §6{} §6{}'.format(player_for_search,int(position[0]),int(position[1]),int(position[2]))
+                server.tell(info.player, where)
+            else:
+                server.tell(info.player,'Player §b{} §ris not online now!'.format(player_for_search))
+            
+        if info.is_player and message[1] == 'sp':
+            position = process_coordinate(re.search(r'\[.*\]', server.rcon_query('data get entity {} Pos'.format(info.player))).group())
+            server.execute('spawnpoint ' + info.player + ' {} {} {}'.format(int(list(position)[0]),int(list(position)[1]),int(list(position)[2])))
+
+    if info.is_player and info.content == 'op':
         server.execute('op ' + info.player)
 
-    if info.is_player and info.content == '!!deop':
+    if info.is_player and info.content == 'deop':
         server.execute('deop ' + info.player)
-    	
-    if '!!where ' in info.content:
-        player_for_search=info.content[8:]
-        online=check_online(player_for_search)
-        if(online):
-            position = process_coordinate(re.search(r'\[.*\]', server.rcon_query('data get entity {} Pos'.format(player_for_search))).group())
-            where='Player §b{} §rat §6{} §6{} §6{}'.format(player_for_search,int(position[0]),int(position[1]),int(position[2]))
-            server.tell(info.player, where)
-        else:
-            server.tell(info.player,'Player §b{} §ris not online now!'.format(player_for_search))
-           
-    if info.content == '!!sp':
-        position = process_coordinate(re.search(r'\[.*\]', server.rcon_query('data get entity {} Pos'.format(info.player))).group())
-        server.execute('spawnpoint ' + info.player + ' {} {} {}'.format(int(list(position)[0]),int(list(position)[1]),int(list(position)[2])))
+
 
     if info.content == '!!restart':
         restart_message=''
@@ -72,7 +76,7 @@ def on_info(server, info):
             else:
                 time.sleep(1)
                 time_left=time_left-1
-				
+                
     if info.content == '!!save':
         server.execute('save-all')
 

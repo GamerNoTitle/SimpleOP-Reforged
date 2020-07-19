@@ -30,7 +30,7 @@ def on_info(server, info):
     waiting_time=10	# 在这里设置重启或关服等待的时间
     time_left=waiting_time
     message=info.content.split()
-    if prefix in info.content or op in info.content or deop in info.content or restart in info.content or stop in info.content or save in info.content:
+    if prefix in info.content or 'op' in info.content or 'deop' in info.content or 'restart' in info.content or 'stop' in info.content or 'save' in info.content:
         if info.content == '!!sr':
             server.tell(info.player, msg)
         

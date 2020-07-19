@@ -2,14 +2,15 @@
 import time
 import re
 import sys
+from imp import load_source
+PlayerInfoAPI = load_source('PlayerInfoAPI','./plugins/PlayerInfoAPI.py')
 sys.path.append('plugins/')
-from OnlinePlayerAPI import check_online
-
 msg='''
 §6======== SimpleOP Reforged ========
 §5一个由佛冷的SimpleOP魔改而来的小插件
 §5魔改的目的是供自己使用，万物皆可魔改~
 §5--GamerNoTitle
+§4需要PlayerInfoAPI！
 §6!!op 可以获取OP权限（无权限要求§4危险§6）
 §6!!restart 可以重启服务器（有10s倒计时）
 §6!!stop 可以关闭服务器（有10s倒计时）
@@ -26,6 +27,14 @@ def process_coordinate(text):
 	data = [(x + 'E0').split('E') for x in data]
 	return tuple([float(e[0]) * 10 ** int(e[1]) for e in data])
 
+def get_pos(server,player_for_search):
+    try:
+        PlayerInfoAPI = server.get_plugin_instance('PlayerInfoAPI')
+        nbt=PlayerInfoAPI.getPlayerInfo(server, player_for_search)
+        return nbt
+    except:
+        return False
+
 def on_info(server, info):
     waiting_time=10	# 在这里设置重启或关服等待的时间
     time_left=waiting_time
@@ -35,18 +44,17 @@ def on_info(server, info):
             server.tell(info.player, msg)
         
         if message[0]=='!!sr':
-            print(len(message))
-            print(message[2])
             if info.is_player and message[1] == 'where' and len(message)==3:
                 player_for_search=message[2]
-                try:
-                    position = process_coordinate(re.search(r'\[.*\]', server.rcon_query('data get entity {} Pos'.format(player_for_search))).group())
-                    where='玩家§b{}§r在[§6{} §6{} §6{}§r]'.format(player_for_search,int(position[0]),int(position[1]),int(position[2]))
-                    server.tell(info.player, where)
-                    server.tell(player_for_search, '玩家{}正在寻找你,你将会被应用15秒的高亮效果'.format(info.player))
-                    server.execute('effect give {} minecraft:glowing 15 0 true'.format(player_for_search))
-                except:
+                nbt=get_pos(server,player_for_search) 
+                if nbt == False:
                     server.tell(info.player,'玩家§b{}§r不在线'.format(player_for_search))
+                else:
+                    position=nbt['Pos']
+                    where='玩家§b{}§r在[x: {}, y: {}, z: {}]'.format(player_for_search,int(position[0]),int(position[1]),int(position[2]))
+                    server.tell(info.player, where)
+                    server.tell(player_for_search, '玩家§b{}§r正在寻找你,你将会被应用15秒的高亮效果'.format(info.player))
+                    server.execute('effect give {} minecraft:glowing 15 0 true'.format(player_for_search))
                 
             if info.is_player and message[1] == 'sp':
                 position = process_coordinate(re.search(r'\[.*\]', server.rcon_query('data get entity {} Pos'.format(info.player))).group())

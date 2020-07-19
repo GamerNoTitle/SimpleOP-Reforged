@@ -2,6 +2,8 @@
 
 一个由SimpleOP魔改魔改再魔改的MCDR插件现在有功能
 
+需要PlayerInfoAPI支持！
+
 - !!sr 获取帮助信息
 
 - !!op 获取OP权限

@@ -27,6 +27,9 @@ def process_coordinate(text):
 	data = [(x + 'E0').split('E') for x in data]
 	return tuple([float(e[0]) * 10 ** int(e[1]) for e in data])
 
+def on_load(server, old_module):
+    server.add_help_message('!!sr', '§5获取SimpleOP-Reforged的使用方法')
+
 def get_pos(server,player_for_search):
     try:
         PlayerInfoAPI = server.get_plugin_instance('PlayerInfoAPI')

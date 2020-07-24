@@ -26,13 +26,14 @@ def on_load(server, old_module):
     server.add_help_message('!!sr', '§5获取SimpleOP-Reforged的使用方法')
 
 def get_pos(server,info):
-    try:
-        PlayerInfoAPI = server.get_plugin_instance('PlayerInfoAPI')
-        pos=PlayerInfoAPI.getPlayerInfo(server, info.player, 'Pos')
-        dim=PlayerInfoAPI.getPlayerInfo(server, info.player, 'Dimension')
-        return pos,dim
-    except:
-        return False,False
+    PlayerInfoAPI = server.get_plugin_instance('PlayerInfoAPI')
+    pos=None
+    dim=None
+    pos=PlayerInfoAPI.getPlayerInfo(server, info.player, 'Pos')
+    dim=PlayerInfoAPI.getPlayerInfo(server, info.player, 'Dimension')
+    if pos == None and dim == None:
+        return True,True
+    else: return pos,dim
 
 def change_dim(dim):
     dimlist={
@@ -43,7 +44,7 @@ def change_dim(dim):
     try:
         changed_dim=dimlist[str(dim)]
     except:
-        change_dim=0
+        changed_dim=0
     return changed_dim
 
 def on_info(server, info):
@@ -57,11 +58,13 @@ def on_info(server, info):
         if message[0]=='!!sr':
             if info.is_player and message[1] == 'where' and len(message)==3:
                 player_for_search=message[2]
-                position,Dimension=get_pos(server,player_for_search) 
-                if position == False and Dimension == False:
+                position,Dimension=get_pos(server,info) 
+                if position and Dimension:
                     server.tell(info.player,'玩家§b{}§r不在线'.format(player_for_search))
                 else:
-                    if type(Dimension) != 'int':
+                    try:
+                        Dimension=int(Dimension)
+                    except:
                         Dimension=change_dim(Dimension)
                     where='玩家§b{}§r在[x: {}, y: {}, z: {}, dim: {}]'.format(player_for_search,int(position[0]),int(position[1]),int(position[2]),Dimension)
                     server.tell(info.player, where)
@@ -69,7 +72,7 @@ def on_info(server, info):
                     server.execute('effect give {} minecraft:glowing 15 0 true'.format(player_for_search))
                 
             if info.is_player and message[1] == 'sp':
-                position,Dimension=get_pos(server,player_for_search) 
+                position,Dimension=get_pos(server,info) 
                 server.execute('spawnpoint ' + info.player + ' {} {} {}'.format(int(list(position)[0]),int(list(position)[1]),int(list(position)[2])))
 
         if info.is_player and info.content == '!!op':

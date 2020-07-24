@@ -22,21 +22,29 @@ msg='''
 '''
 prefix='!!sr'
 
-def process_coordinate(text):
-	data = text[1:-1].replace('d', '').split(', ')
-	data = [(x + 'E0').split('E') for x in data]
-	return tuple([float(e[0]) * 10 ** int(e[1]) for e in data])
-
 def on_load(server, old_module):
     server.add_help_message('!!sr', '§5获取SimpleOP-Reforged的使用方法')
 
-def get_pos(server,player_for_search):
+def get_pos(server,info):
     try:
         PlayerInfoAPI = server.get_plugin_instance('PlayerInfoAPI')
-        nbt=PlayerInfoAPI.getPlayerInfo(server, player_for_search)
-        return nbt
+        pos=PlayerInfoAPI.getPlayerInfo(server, info.player, 'Pos')
+        dim=PlayerInfoAPI.getPlayerInfo(server, info.player, 'Dimension')
+        return pos,dim
     except:
-        return False
+        return False,False
+
+def change_dim(dim):
+    dimlist={
+        "minecraft:overworld": 0,
+        "minecraft:the_nether": -1,
+        "minecraft:end": 1
+    }
+    try:
+        changed_dim=dimlist[str(dim)]
+    except:
+        change_dim=0
+    return changed_dim
 
 def on_info(server, info):
     waiting_time=10	# 在这里设置重启或关服等待的时间
@@ -49,18 +57,19 @@ def on_info(server, info):
         if message[0]=='!!sr':
             if info.is_player and message[1] == 'where' and len(message)==3:
                 player_for_search=message[2]
-                nbt=get_pos(server,player_for_search) 
-                if nbt == False:
+                position,Dimension=get_pos(server,player_for_search) 
+                if position == False and Dimension == False:
                     server.tell(info.player,'玩家§b{}§r不在线'.format(player_for_search))
                 else:
-                    position=nbt['Pos']
-                    where='玩家§b{}§r在[x: {}, y: {}, z: {}]'.format(player_for_search,int(position[0]),int(position[1]),int(position[2]))
+                    if type(Dimension) != 'int':
+                        Dimension=change_dim(Dimension)
+                    where='玩家§b{}§r在[x: {}, y: {}, z: {}, dim: {}]'.format(player_for_search,int(position[0]),int(position[1]),int(position[2]),Dimension)
                     server.tell(info.player, where)
                     server.tell(player_for_search, '玩家§b{}§r正在寻找你,你将会被应用15秒的高亮效果'.format(info.player))
                     server.execute('effect give {} minecraft:glowing 15 0 true'.format(player_for_search))
                 
             if info.is_player and message[1] == 'sp':
-                position = process_coordinate(re.search(r'\[.*\]', server.rcon_query('data get entity {} Pos'.format(info.player))).group())
+                position,Dimension=get_pos(server,player_for_search) 
                 server.execute('spawnpoint ' + info.player + ' {} {} {}'.format(int(list(position)[0]),int(list(position)[1]),int(list(position)[2])))
 
         if info.is_player and info.content == '!!op':

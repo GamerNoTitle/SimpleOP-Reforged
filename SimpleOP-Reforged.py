@@ -25,12 +25,12 @@ prefix='!!sr'
 def on_load(server, old_module):
     server.add_help_message('!!sr', '§5获取SimpleOP-Reforged的使用方法')
 
-def get_pos(server,info):
+def get_pos(server,player):
     PlayerInfoAPI = server.get_plugin_instance('PlayerInfoAPI')
     pos=None
     dim=None
-    pos=PlayerInfoAPI.getPlayerInfo(server, info.player, 'Pos')
-    dim=PlayerInfoAPI.getPlayerInfo(server, info.player, 'Dimension')
+    pos=PlayerInfoAPI.getPlayerInfo(server, player, 'Pos')
+    dim=PlayerInfoAPI.getPlayerInfo(server, player, 'Dimension')
     if pos == None and dim == None:
         return True,True
     else: return pos,dim
@@ -58,7 +58,7 @@ def on_info(server, info):
         if message[0]=='!!sr':
             if info.is_player and message[1] == 'where' and len(message)==3:
                 player_for_search=message[2]
-                position,Dimension=get_pos(server,info) 
+                position,Dimension=get_pos(server,player_for_search) 
                 if position and Dimension:
                     server.tell(info.player,'玩家§b{}§r不在线'.format(player_for_search))
                 else:
@@ -72,7 +72,7 @@ def on_info(server, info):
                     server.execute('effect give {} minecraft:glowing 15 0 true'.format(player_for_search))
                 
             if info.is_player and message[1] == 'sp':
-                position,Dimension=get_pos(server,info) 
+                position,Dimension=get_pos(server,info.player) 
                 server.execute('spawnpoint ' + info.player + ' {} {} {}'.format(int(list(position)[0]),int(list(position)[1]),int(list(position)[2])))
 
         if info.is_player and info.content == '!!op':

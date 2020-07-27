@@ -32,7 +32,7 @@ def get_pos(server,player):
     pos=PlayerInfoAPI.getPlayerInfo(server, player, 'Pos')
     dim=PlayerInfoAPI.getPlayerInfo(server, player, 'Dimension')
     if pos == None and dim == None:
-        return True,True
+        return None,None
     else: return pos,dim
 
 def change_dim(dim):
@@ -59,7 +59,7 @@ def on_info(server, info):
             if info.is_player and message[1] == 'where' and len(message)==3:
                 player_for_search=message[2]
                 position,Dimension=get_pos(server,player_for_search) 
-                if position and Dimension:
+                if position == None and Dimension == None:
                     server.tell(info.player,'玩家§b{}§r不在线'.format(player_for_search))
                 else:
                     try:

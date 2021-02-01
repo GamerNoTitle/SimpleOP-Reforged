@@ -76,7 +76,7 @@ def on_info(server, info):
                     except:
                         Dimension=change_dim(Dimension)
                     where='玩家§b{}§r在[x: {}, y: {}, z: {}, dim: {}]'.format(player_for_search,int(position[0]),int(position[1]),int(position[2]),Dimension)
-                    server.reply(info,, where)
+                    server.reply(info, where)
                     server.tell(player_for_search, '玩家§b{}§r正在寻找你,你将会被应用15秒的高亮效果'.format(info.player))
                     server.execute('effect give {} minecraft:glowing 15 0 true'.format(player_for_search))
                 

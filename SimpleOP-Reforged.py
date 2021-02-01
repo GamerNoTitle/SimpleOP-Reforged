@@ -5,6 +5,18 @@ import sys
 from imp import load_source
 PlayerInfoAPI = load_source('PlayerInfoAPI','./plugins/PlayerInfoAPI.py')
 sys.path.append('plugins/')
+
+PLUGIN_METADATA = {
+    'id': 'simpleop_reforged',
+    'version': '1.0.0',
+    'name': 'SimpleOP-Reforged',  # RText component is allowed
+    'description': 'A brandly new version of SimpleOP',  # RText component is allowed
+    'author': 'GamerNoTitle',
+    'link': 'https://github.com/GamerNoTitle/SimpleOP-Reforged',
+    'dependencies': {
+    }
+}
+
 msg='''
 §6======== SimpleOP Reforged ========
 §5一个由佛冷的SimpleOP魔改而来的小插件
@@ -21,9 +33,6 @@ msg='''
 §6===================================
 '''
 prefix='!!sr'
-
-def on_load(server, old_module):
-    server.add_help_message('!!sr', '§5获取SimpleOP-Reforged的使用方法')
 
 def get_pos(server,player):
     PlayerInfoAPI = server.get_plugin_instance('PlayerInfoAPI')

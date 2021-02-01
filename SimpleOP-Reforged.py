@@ -62,21 +62,21 @@ def on_info(server, info):
     message=info.content.split()
     if prefix in info.content or 'op' in info.content or 'deop' in info.content or 'restart' in info.content or 'stop' in info.content or 'save' in info.content:
         if info.content == '!!sr':
-            server.tell(info.player, msg)
+            server.reply(info, msg)
         
         if message[0]=='!!sr':
             if info.is_player and message[1] == 'where' and len(message)==3:
                 player_for_search=message[2]
                 position,Dimension=get_pos(server,player_for_search) 
                 if position == None and Dimension == None:
-                    server.tell(info.player,'玩家§b{}§r不在线'.format(player_for_search))
+                    server.reply(info,'玩家§b{}§r不在线'.format(player_for_search))
                 else:
                     try:
                         Dimension=int(Dimension)
                     except:
                         Dimension=change_dim(Dimension)
                     where='玩家§b{}§r在[x: {}, y: {}, z: {}, dim: {}]'.format(player_for_search,int(position[0]),int(position[1]),int(position[2]),Dimension)
-                    server.tell(info.player, where)
+                    server.reply(info,, where)
                     server.tell(player_for_search, '玩家§b{}§r正在寻找你,你将会被应用15秒的高亮效果'.format(info.player))
                     server.execute('effect give {} minecraft:glowing 15 0 true'.format(player_for_search))
                 
